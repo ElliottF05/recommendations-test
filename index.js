@@ -1,10 +1,18 @@
 // Semantic Scholar Recommendations API page: 
 // https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations
 
-// Base URL for Recommendations API
+// Base URL for recommendations API
 const BASE_URL = 'https://api.semanticscholar.org/recommendations/v1';
 
-// Fetch recommendations from single positive paperId
+/**
+ * Fetch recommendations for a single positive paperId.
+ *
+ * @param {string} paperId - The paperId to make recommendations for.
+ * @param {number} [limit=5] - Max number of recommendations to return (default: 5).
+ * @param {string} [fields="title,url"] - Comma-separated list of fields to include for each recommended paper (paperId is always returned regardless of settings).
+ * @param {string} [from="all-cs"] - The scope of the recommendations. Default is "all-cs". Other option is "recent"
+ * @returns {Object|undefined} Recommendations data as an object (returns undefined if an error occurs).f
+ */
 async function fetchRecsFromSingleId(paperId, limit=5, fields="title,url", from="all-cs") {
 
     const params = new URLSearchParams({
@@ -21,7 +29,7 @@ async function fetchRecsFromSingleId(paperId, limit=5, fields="title,url", from=
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
+            throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -32,7 +40,15 @@ async function fetchRecsFromSingleId(paperId, limit=5, fields="title,url", from=
 }
 
 
-// Fetch recommendations from multiple positive paperIds and multiple negative paperIds
+/**
+ * Fetch recommendations for multiple positive and negative paperId's.
+ *
+ * @param {string[]} positiveIds - Array of positive paperId's to make recommendations from.
+ * @param {string[]} [negativeIds=[]] - Array of negative paperId's to exclude from recommendations (optional).
+ * @param {number} [limit=5] - Max number of recommendations to return (default: 5).
+ * @param {string} [fields="title,url"] - Comma-separated list of fields to include for each recommended paper (paperId is always returned regardless of settings).
+ * @returns {Object|undefined} Recommendations data as an object (returns undefined if an error occurs).
+ */
 async function fetchRecsFromMultipleIds(positiveIds, negativeIds = [], limit=5, fields="title,url") {
 
     const params = new URLSearchParams({
@@ -41,7 +57,6 @@ async function fetchRecsFromMultipleIds(positiveIds, negativeIds = [], limit=5, 
     })
 
     const requestURL = `${BASE_URL}/papers?${params}`;
-    // console.log("Request URL:", requestURL);
 
     try {
         const response = await fetch(requestURL, {
@@ -56,7 +71,7 @@ async function fetchRecsFromMultipleIds(positiveIds, negativeIds = [], limit=5, 
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
